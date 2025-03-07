@@ -1,5 +1,3 @@
-// Currently only has bubble sort. Will add more sorts in the future.
-
 // Get elements by their IDs from the DOM
 let randomize_array = document.getElementById("randomize_array_btn");
 let sort_btn =  document.getElementById("sort_btn");
@@ -7,7 +5,6 @@ let bars_container = document.getElementById("bars_container");
 let minValue = 1;
 let maxValue = 50;
 let numBars = 50;
-let scaleHeight = 8;
 let unsortedArray = new Array(numBars);
 
 // Generate a random number between min and max (inclusive)
@@ -28,15 +25,33 @@ document.addEventListener("DOMContentLoaded", function() {
     renderBars(unsortedArray); // Make call to render the unsorted array as bars
 });
 
-// Render the bars in the DOM based on the array values
-function renderBars(array){
-    for(let i = 0; i < array.length; i++) {
+// Function to render bars dynamically
+function renderBars(array) {
+    let maxArrayValue = Math.max(...array); // Get max value for scaling
+
+    for (let i = 0; i < array.length; i++) {
         let bar = document.createElement("div");
         bar.classList.add("bar");
-        bar.style.height = array[i] * scaleHeight + "px";
+
+        // Set height as a percentage of container height
+        let heightPercentage = (array[i] / maxArrayValue) * 100;
+        bar.style.height = `${heightPercentage}%`;
+
         bars_container.appendChild(bar);
     }
 }
+
+// Resize bars dynamically when window resizes
+window.addEventListener("resize", function() {
+    // Update the bars' height percentages
+    let bars = document.getElementsByClassName("bar");
+    let maxArrayValue = Math.max(...unsortedArray);
+
+    for (let i = 0; i < bars.length; i++) {
+        let heightPercentage = (unsortedArray[i] / maxArrayValue) * 100;
+        bars[i].style.height = `${heightPercentage}%`;
+    }
+});
 
 // Event listener to randomize the array and re-render the bars when clicked
 randomize_array.addEventListener("click", function() {
@@ -53,6 +68,8 @@ function sleep(ms) {
 // Bubble sort implementation with async/await for smoother animations
 async function bubbleSort(array) {
     let bars = document.getElementsByClassName("bar");
+    let maxArrayValue = Math.max(...array);
+
     for (let i = 0; i < array.length; i++) {
         for (let j = 0; j < array.length - 1 - i; j++) {
             if (array[j] > array[j + 1]) {
@@ -70,9 +87,9 @@ async function bubbleSort(array) {
                 array[j+1] = temp;
 
                 // Update the heights and colors of the bars to reflect the swap
-                bars[j].style.height = array[j] * scaleHeight + "px";
+                bars[j].style.height = `${(array[j] / maxArrayValue) * 100}%`;
                 bars[j].style.backgroundColor = "#7fcdff";
-                bars[j + 1].style.height = array[j + 1] * scaleHeight + "px";
+                bars[j + 1].style.height = `${(array[j + 1] / maxArrayValue) * 100}%`;
                 bars[j + 1].style.backgroundColor = "#7fcdff";
 
                 // Pause for 10 ms for smoother animation
@@ -87,7 +104,14 @@ async function bubbleSort(array) {
 }
 
 // Event Listener to trigger bubble sort
-sort_btn.addEventListener("click", function () {
-    let sorted_array = bubbleSort(unsortedArray);
-    console.log(sorted_array);
+sort_btn.addEventListener("click", async function () {
+    // Disable the randomize button when sort is in progress
+    randomize_array.disabled = true;
+    randomize_array.style.opacity = "0.5"; 
+
+    await bubbleSort(unsortedArray); // Wait for sorting to complete
+
+    // Re-enable the randomize button when sort is finished
+    randomize_array.disabled = false;
+    randomize_array.style.opacity = "1"; 
 });
