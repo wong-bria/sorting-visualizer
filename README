@@ -1,6 +1,0 @@
-Motivation behind project: After taking a class on Algorithms and Data, and wanting to
-learn/practice using JavaScript, I decided to start this personal project: a visualizer
-for sorting algorithms.
-
-Currently, only bubble sort is supported, but more sorting algorithms will be added in
-the future.
